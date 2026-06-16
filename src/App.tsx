@@ -16,6 +16,20 @@ const getCurrentRoute = (): RoutePath => {
   return routeSet.has(path) ? (path as RoutePath) : '/'
 }
 
+const scrollToPageTarget = (hash: string) => {
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+  if (!hash) {
+    document.documentElement.scrollTo({ top: 0, left: 0, behavior: reduceMotion ? 'auto' : 'smooth' })
+    return
+  }
+
+  document.getElementById(hash)?.scrollIntoView({
+    behavior: reduceMotion ? 'auto' : 'smooth',
+    block: 'start',
+  })
+}
+
 function App() {
   const [isNightMode, setIsNightMode] = useState(false)
   const [locale, setLocale] = useState<Locale>('en')
@@ -75,6 +89,7 @@ function App() {
     const [path, hash = ''] = href.split('#')
     const nextRoute = routeSet.has(path) ? (path as RoutePath) : '/'
     const nextUrl = `${nextRoute}${hash ? `#${hash}` : ''}`
+    const isSameRoute = window.location.pathname === nextRoute
 
     if (window.location.pathname !== nextRoute || window.location.hash !== (hash ? `#${hash}` : '')) {
       window.history.pushState(null, '', nextUrl)
@@ -82,6 +97,10 @@ function App() {
 
     setRoute(nextRoute)
     setShouldHighlightContact(hash === 'candidate-enquiry')
+
+    if (hash !== 'candidate-enquiry' && (isSameRoute || nextRoute === '/')) {
+      window.setTimeout(() => scrollToPageTarget(hash), 80)
+    }
   }, [])
 
   const handleContact = useCallback(() => {
