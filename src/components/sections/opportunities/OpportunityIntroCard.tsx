@@ -15,7 +15,7 @@ export function OpportunityIntroCard({ copy, onContact }: { copy: LanguageCopy; 
         <span>{copy.details.opportunities.promiseTwo}</span>
       </div>
       <Button
-        href="/candidates#candidate-enquiry"
+        href="/#candidate-enquiry"
         className="secondary-inline-action"
         onClick={(event) => {
           if (!onContact) return

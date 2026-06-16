@@ -5,7 +5,7 @@ export function ContactBox({ inverse = false, onContact }: { inverse?: boolean; 
   return (
     <a
       className={inverse ? 'section-contact section-contact-inverse' : 'section-contact'}
-      href="/candidates#candidate-enquiry"
+      href="/#candidate-enquiry"
       onClick={(event) => {
         event.preventDefault()
         if (onContact) {

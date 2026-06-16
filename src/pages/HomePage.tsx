@@ -6,13 +6,45 @@ import { Hero } from '../components/layout/Hero'
 import type { HomePageProps } from '../types/page'
 
 export function HomePage({
+  businessForm,
+  candidateForm,
   copy,
+  expertiseCards,
+  lists,
   onContact,
   onNavigate,
+  partnershipForm,
 }: HomePageProps) {
   return (
     <>
       <Hero copy={copy} onContact={onContact} onNavigate={onNavigate} />
+      <AboutSection
+        copy={copy}
+        expertiseCards={expertiseCards}
+        hiringRealities={lists.hiringRealities}
+        onContact={onContact}
+        operationsRoles={lists.operationsRoles}
+        technologyRoles={lists.technologyRoles}
+      />
+      <BusinessSection
+        businessForm={businessForm}
+        copy={copy}
+        contingencyExpectations={lists.contingencyExpectations}
+        contingencyIdeal={lists.contingencyIdeal}
+        embeddedExpectations={lists.embeddedExpectations}
+        embeddedIdeal={lists.embeddedIdeal}
+        embeddedServices={lists.embeddedServices}
+        onContact={onContact}
+        partnershipForm={partnershipForm}
+      />
+      <OpportunitiesSection copy={copy} onContact={onContact} />
+      <CandidateResourcesSection
+        candidateForm={candidateForm}
+        copy={copy}
+        cvSupport={lists.cvSupport}
+        interviewSupport={lists.interviewSupport}
+        onContact={onContact}
+      />
     </>
   )
 }

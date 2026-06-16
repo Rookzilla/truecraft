@@ -28,10 +28,10 @@ function App() {
   const content = buildLocalizedContent(copy)
 
   const minibarItems = [
-    { href: '/about', label: copy.titles.nav.about },
-    { href: '/businesses', label: copy.titles.nav.businesses },
-    { href: '/opportunities', label: copy.titles.nav.roles },
-    { href: '/candidates', label: copy.titles.nav.candidates },
+    { href: '/#about', label: copy.titles.nav.about },
+    { href: '/#businesses', label: copy.titles.nav.businesses },
+    { href: '/#opportunities', label: copy.titles.nav.roles },
+    { href: '/#resources', label: copy.titles.nav.candidates },
   ]
 
   useEffect(() => {
@@ -45,11 +45,23 @@ function App() {
   }, [])
 
   useEffect(() => {
+    if (window.location.hash) return
     document.documentElement.scrollTo({ top: 0, left: 0, behavior: 'auto' })
   }, [route])
 
   useEffect(() => {
-    if (route !== '/candidates' || !shouldHighlightContact) return
+    if (route !== '/' || !window.location.hash || shouldHighlightContact) return
+
+    const id = window.location.hash.slice(1)
+    const timeout = window.setTimeout(() => {
+      document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }, 80)
+
+    return () => window.clearTimeout(timeout)
+  }, [route, shouldHighlightContact])
+
+  useEffect(() => {
+    if ((route !== '/candidates' && route !== '/') || !shouldHighlightContact) return
 
     const timeout = window.setTimeout(() => {
       activateContactTarget()
@@ -73,7 +85,7 @@ function App() {
   }, [])
 
   const handleContact = useCallback(() => {
-    navigate('/candidates#candidate-enquiry')
+    navigate('/#candidate-enquiry')
   }, [navigate])
 
   const pageProps = useMemo(

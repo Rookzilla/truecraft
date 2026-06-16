@@ -48,37 +48,37 @@ export function Hero({
           </button>
           <div className={isMenuOpen ? 'nav-actions is-open' : 'nav-actions'} id="site-navigation">
             <a
-              href="/businesses"
+              href="/#businesses"
               onClick={(event) => {
                 event.preventDefault()
                 closeMenu()
-                onNavigate('/businesses')
+                onNavigate('/#businesses')
               }}
             >
               {copy.titles.nav.businessesTop}
             </a>
             <a
-              href="/opportunities"
+              href="/#opportunities"
               onClick={(event) => {
                 event.preventDefault()
                 closeMenu()
-                onNavigate('/opportunities')
+                onNavigate('/#opportunities')
               }}
             >
               {copy.titles.nav.opportunitiesTop}
             </a>
             <a
-              href="/candidates"
+              href="/#resources"
               onClick={(event) => {
                 event.preventDefault()
                 closeMenu()
-                onNavigate('/candidates')
+                onNavigate('/#resources')
               }}
             >
               {copy.titles.nav.candidatesTop}
             </a>
             <a
-              href="/candidates#candidate-enquiry"
+              href="/#candidate-enquiry"
               onClick={(event) => {
                 event.preventDefault()
                 closeMenu()
@@ -103,25 +103,25 @@ export function Hero({
               <p className="hero-text">{copy.details.hero.text}</p>
               <div className="hero-actions">
                 <Button
-                  href="/businesses"
+                  href="/#businesses"
                   size="lg"
                   className="primary-action"
                   onClick={(event) => {
                     event.preventDefault()
-                    onNavigate('/businesses')
+                    onNavigate('/#businesses')
                   }}
                 >
                   {copy.actions.hero.businessCta}
                   <ArrowRight size={18} aria-hidden="true" />
                 </Button>
                 <Button
-                  href="/candidates"
+                  href="/#resources"
                   size="lg"
                   variant="outline-light"
                   className="ghost-action"
                   onClick={(event) => {
                     event.preventDefault()
-                    onNavigate('/candidates')
+                    onNavigate('/#resources')
                   }}
                 >
                   {copy.actions.hero.candidateCta}
