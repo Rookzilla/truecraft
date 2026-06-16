@@ -1,0 +1,222 @@
+@media (max-width: 991px) {
+  #about,
+  #businesses,
+  #opportunities,
+  #resources,
+  #candidate-enquiry {
+    scroll-margin-top: 84px;
+  }
+
+  .minibar {
+    display: none;
+  }
+
+  .single-line-heading {
+    white-space: normal;
+  }
+
+  .icon-grid-compact {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .hero-section {
+    min-height: 850px;
+  }
+
+  .site-nav {
+    position: fixed;
+    inset: 0 0 auto;
+    top: 0;
+    z-index: 50;
+    width: 100%;
+    min-height: 72px;
+    padding: 10px 20px;
+    border-top: 0;
+    border-bottom: 1px solid rgba(var(--rgb-accent), 0.46);
+    background: rgba(var(--rgb-night), 0.94);
+    box-shadow: 0 12px 34px rgba(var(--rgb-black), 0.22);
+    backdrop-filter: blur(14px);
+  }
+
+  .nav-toggle {
+    display: inline-grid;
+    width: 44px;
+    height: 44px;
+    place-items: center;
+    border: 1px solid rgba(var(--rgb-accent), 0.58);
+    border-radius: 3px;
+    color: var(--color-white);
+    background: rgba(var(--rgb-white), 0.04);
+  }
+
+  .nav-toggle:hover,
+  .nav-toggle:focus-visible {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+    outline: none;
+  }
+
+  .nav-actions {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    left: 0;
+    display: grid;
+    max-height: 0;
+    gap: 0;
+    padding: 0 20px;
+    background: rgba(var(--rgb-night), 0.97);
+    border-bottom: 0 solid rgba(var(--rgb-accent), 0.46);
+    box-shadow: 0 20px 34px rgba(var(--rgb-black), 0.28);
+    opacity: 0;
+    overflow: hidden;
+    pointer-events: none;
+    transform: translateY(-8px);
+    transition:
+      max-height 220ms ease,
+      padding 220ms ease,
+      border-width 220ms ease,
+      opacity 160ms ease,
+      transform 220ms ease;
+  }
+
+  .nav-actions.is-open {
+    max-height: 320px;
+    padding-top: 12px;
+    padding-bottom: 18px;
+    border-bottom-width: 1px;
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+  }
+
+  .nav-actions a {
+    width: 100%;
+    padding: 15px 4px;
+    border: 0;
+    border-bottom: 1px solid rgba(var(--rgb-accent), 0.16);
+    border-radius: 0;
+    background: transparent;
+    font-size: 0.82rem;
+    text-align: left;
+  }
+
+  .nav-actions a:last-child {
+    border-bottom: 0;
+  }
+
+  .hero-image {
+    object-position: 68% center;
+  }
+
+  .hero-grid {
+    min-height: 850px;
+    align-items: end !important;
+    padding-top: 112px;
+    padding-bottom: 72px;
+  }
+
+  .hero-copy {
+    max-width: 100%;
+  }
+
+  .content-section,
+  .brief-section,
+  .contact-section {
+    padding: 76px 0;
+  }
+
+  .about-heading p {
+    margin-left: 0;
+  }
+
+  .section-heading-action {
+    justify-content: flex-start;
+    margin-top: 24px;
+  }
+}
+
+@media (max-width: 575px) {
+  .brand-mark {
+    font-size: 0.92rem;
+  }
+
+  .site-nav {
+    min-height: 66px;
+    padding-inline: 12px;
+  }
+
+  .hero-section,
+  .hero-grid {
+    min-height: 780px;
+  }
+
+  .hero-copy h1 {
+    font-size: 3.75rem;
+  }
+
+  .hero-actions .btn {
+    width: 100%;
+  }
+
+  .brief-panel,
+  .contact-panel,
+  .question-panel,
+  .feature-card,
+  .service-panel,
+  .mission-panel {
+    padding: 22px;
+  }
+
+  .mission-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .icon-grid,
+  .icon-grid-dark,
+  .icon-grid-compact {
+    grid-template-columns: 1fr;
+  }
+
+  .file-upload-control {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .file-upload-control em {
+    grid-column: 2;
+    white-space: normal;
+  }
+
+  .panel-heading {
+    display: block;
+  }
+
+  .panel-heading .card-icon {
+    margin-bottom: 18px;
+  }
+
+  .candidate-contact-heading {
+    display: block;
+  }
+
+  .candidate-contact-heading p {
+    margin-top: 10px;
+  }
+
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+
+  .candidate-contact-panel.is-contact-highlighted {
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px rgba(var(--rgb-accent), 0.28);
+  }
+}

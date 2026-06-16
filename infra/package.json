@@ -1,0 +1,21 @@
+{
+  "name": "truecraft-infra",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "synth": "cdk synth",
+    "deploy": "cdk deploy",
+    "destroy": "cdk destroy"
+  },
+  "dependencies": {
+    "aws-cdk-lib": "2.259.0",
+    "constructs": "10.6.0"
+  },
+  "devDependencies": {
+    "@types/node": "24.12.3",
+    "aws-cdk": "2.1126.0",
+    "ts-node": "10.9.2",
+    "typescript": "6.0.2"
+  }
+}

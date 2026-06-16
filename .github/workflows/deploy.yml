@@ -1,0 +1,107 @@
+name: Deploy static site
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: production-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    env:
+      AWS_ACCOUNT_ID: ${{ vars.AWS_ACCOUNT_ID }}
+      AWS_REGION: ${{ vars.AWS_REGION }}
+      AWS_ROLE_ARN: ${{ vars.AWS_ROLE_ARN }}
+      CDK_DEFAULT_ACCOUNT: ${{ vars.AWS_ACCOUNT_ID }}
+      CDK_DEFAULT_REGION: ${{ vars.AWS_REGION }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            infra/package-lock.json
+
+      - name: Install application dependencies
+        run: npm ci
+
+      - name: Install infrastructure dependencies
+        run: npm ci --prefix infra
+
+      - name: Typecheck application
+        run: npm run typecheck
+
+      - name: Run tests when configured
+        run: npm run test --if-present
+
+      - name: Lint application
+        run: npm run lint
+
+      - name: Build application
+        run: npm run build
+
+      - name: Typecheck infrastructure
+        run: npm run typecheck --prefix infra
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ env.AWS_ROLE_ARN }}
+          role-session-name: truecraft-github-deploy
+
+      - name: Deploy CDK stack
+        run: >
+          npm run deploy --prefix infra --
+          --require-approval never
+          --outputs-file cdk-outputs.json
+
+      - name: Read deployment outputs
+        id: stack
+        working-directory: infra
+        shell: bash
+        run: |
+          BUCKET=$(node -p "require('./cdk-outputs.json').TruecraftStaticSite.SiteBucketName")
+          DISTRIBUTION=$(node -p "require('./cdk-outputs.json').TruecraftStaticSite.DistributionId")
+          URL=$(node -p "require('./cdk-outputs.json').TruecraftStaticSite.CloudFrontUrl")
+          echo "bucket=$BUCKET" >> "$GITHUB_OUTPUT"
+          echo "distribution=$DISTRIBUTION" >> "$GITHUB_OUTPUT"
+          echo "url=$URL" >> "$GITHUB_OUTPUT"
+
+      - name: Upload application shell
+        run: >
+          aws s3 sync dist "s3://${{ steps.stack.outputs.bucket }}"
+          --delete
+          --exclude "assets/*"
+          --cache-control "no-cache, no-store, must-revalidate"
+
+      - name: Upload immutable assets
+        run: >
+          aws s3 sync dist/assets "s3://${{ steps.stack.outputs.bucket }}/assets"
+          --delete
+          --cache-control "public, max-age=31536000, immutable"
+
+      - name: Invalidate CloudFront
+        run: >
+          aws cloudfront create-invalidation
+          --distribution-id "${{ steps.stack.outputs.distribution }}"
+          --paths "/*"
+
+      - name: Print website URL
+        run: echo "Website deployed to ${{ steps.stack.outputs.url }}"

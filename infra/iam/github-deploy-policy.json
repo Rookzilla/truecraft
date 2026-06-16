@@ -1,0 +1,54 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "UseTruecraftBootstrapRoles",
+      "Effect": "Allow",
+      "Action": "sts:AssumeRole",
+      "Resource": [
+        "arn:aws:iam::905418205737:role/cdk-truecraft-deploy-role-905418205737-eu-west-2",
+        "arn:aws:iam::905418205737:role/cdk-truecraft-file-publishing-role-905418205737-eu-west-2",
+        "arn:aws:iam::905418205737:role/cdk-truecraft-image-publishing-role-905418205737-eu-west-2",
+        "arn:aws:iam::905418205737:role/cdk-truecraft-lookup-role-905418205737-eu-west-2"
+      ]
+    },
+    {
+      "Sid": "ReadTruecraftBootstrapVersion",
+      "Effect": "Allow",
+      "Action": "ssm:GetParameter",
+      "Resource": "arn:aws:ssm:eu-west-2:905418205737:parameter/cdk-bootstrap/truecraft/version"
+    },
+    {
+      "Sid": "InspectTruecraftStack",
+      "Effect": "Allow",
+      "Action": [
+        "cloudformation:DescribeStackEvents",
+        "cloudformation:DescribeStacks",
+        "cloudformation:GetTemplate"
+      ],
+      "Resource": "arn:aws:cloudformation:eu-west-2:905418205737:stack/TruecraftStaticSite/*"
+    },
+    {
+      "Sid": "ListTruecraftSiteBucket",
+      "Effect": "Allow",
+      "Action": "s3:ListBucket",
+      "Resource": "arn:aws:s3:::truecraft-static-site-905418205737-eu-west-2"
+    },
+    {
+      "Sid": "PublishTruecraftSite",
+      "Effect": "Allow",
+      "Action": [
+        "s3:DeleteObject",
+        "s3:GetObject",
+        "s3:PutObject"
+      ],
+      "Resource": "arn:aws:s3:::truecraft-static-site-905418205737-eu-west-2/*"
+    },
+    {
+      "Sid": "InvalidateTruecraftDistribution",
+      "Effect": "Allow",
+      "Action": "cloudfront:CreateInvalidation",
+      "Resource": "arn:aws:cloudfront::905418205737:distribution/EEI5TXFMUUVHM"
+    }
+  ]
+}

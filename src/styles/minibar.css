@@ -1,0 +1,120 @@
+.minibar {
+  position: fixed;
+  top: 92px;
+  right: 22px;
+  z-index: 20;
+  display: grid;
+  gap: 10px;
+  width: 154px;
+  padding: 10px;
+  border: 1px solid rgba(var(--rgb-accent), 0.42);
+  border-radius: 8px;
+  color: rgba(var(--rgb-white), 0.84);
+  background: rgba(var(--rgb-night), 0.84);
+  box-shadow: 0 18px 54px rgba(var(--rgb-black), 0.28);
+  backdrop-filter: blur(14px);
+}
+
+.minibar a,
+.minibar button {
+  color: inherit;
+}
+
+.minibar-top,
+.minibar-mode {
+  display: inline-grid;
+  width: 100%;
+  min-height: 38px;
+  place-items: center;
+  border: 1px solid rgba(var(--rgb-accent), 0.18);
+  border-radius: 5px;
+  background: rgba(var(--rgb-white), 0.04);
+  text-decoration: none;
+  transition: border-color 160ms ease, background 160ms ease, color 160ms ease, transform 160ms ease;
+}
+
+.minibar-mode {
+  cursor: pointer;
+}
+
+.minibar-top:hover,
+.minibar-mode:hover {
+  border-color: rgba(var(--rgb-accent), 0.66);
+  color: var(--color-accent);
+  background: rgba(var(--rgb-accent), 0.1);
+  transform: translateY(-1px);
+}
+
+.minibar-nav {
+  display: grid;
+  gap: 4px;
+  padding: 8px 0;
+  border-top: 1px solid rgba(var(--rgb-accent), 0.13);
+  border-bottom: 1px solid rgba(var(--rgb-accent), 0.13);
+}
+
+.minibar .language-label {
+  color: rgba(var(--rgb-white), 0.54);
+  font-size: 0.66rem;
+  line-height: 1.2;
+}
+
+.minibar .language-trigger,
+.minibar .language-menu button {
+  border-color: rgba(var(--rgb-accent), 0.16);
+  color: rgba(var(--rgb-white), 0.82);
+  background: rgba(var(--rgb-white), 0.04);
+}
+
+.minibar .language-trigger {
+  min-height: 38px;
+  padding: 8px 12px;
+  box-shadow: none;
+}
+
+.minibar .language-trigger strong {
+  font-size: 0.76rem;
+  font-weight: 600;
+}
+
+.minibar .language-current,
+.minibar .language-option {
+  gap: 8px;
+}
+
+.minibar .language-trigger:hover,
+.minibar .language-menu button:hover {
+  border-color: rgba(var(--rgb-accent), 0.66);
+  color: var(--color-white);
+  background: rgba(var(--rgb-accent), 0.1);
+  box-shadow: none;
+}
+
+.minibar .language-menu {
+  min-width: 142px;
+}
+
+.minibar .language-flag {
+  width: 18px;
+  box-shadow: 0 0 0 1px rgba(var(--rgb-white), 0.14);
+}
+
+.minibar-nav a {
+  display: block;
+  min-height: 30px;
+  padding: 7px 9px;
+  border-radius: 5px;
+  color: rgba(var(--rgb-white), 0.7);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.025em;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: background 160ms ease, color 160ms ease;
+}
+
+.minibar-nav a:hover {
+  color: var(--color-white);
+  background: rgba(var(--rgb-white), 0.07);
+}
+

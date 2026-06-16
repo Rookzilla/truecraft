@@ -1,0 +1,119 @@
+.inverse-heading {
+  border-bottom-color: rgba(var(--rgb-paper), 0.34);
+}
+
+.inverse-heading h2,
+.inverse-heading p {
+  color: var(--color-paper);
+}
+
+.compact-heading {
+  color: inherit;
+}
+
+.compact-heading p {
+  margin: 0;
+}
+
+.opportunity-panel {
+  min-height: 100%;
+}
+
+.site-shell:not(.is-night) .opportunity-panel {
+  border-color: rgba(var(--rgb-ink), 0.78);
+  background: rgba(var(--rgb-card), 0.82);
+}
+
+.site-shell:not(.is-night) .opportunity-panel:hover {
+  border-color: rgba(var(--rgb-accent), 0.82);
+  box-shadow: 0 18px 44px rgba(var(--rgb-ink), 0.08);
+}
+
+.promise-list {
+  display: grid;
+  gap: 8px;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(var(--rgb-ink), 0.18);
+  color: var(--color-muted);
+  font-weight: 500;
+}
+
+.promise-list strong {
+  color: var(--color-ink);
+  font-weight: 700;
+}
+
+.promise-list > span {
+  color: var(--color-accent);
+  font-weight: 600;
+}
+
+.opportunities-board {
+  display: flex;
+  flex-direction: column;
+}
+
+.empty-role {
+  display: grid;
+  min-height: 230px;
+  place-items: center;
+  align-content: center;
+  gap: 10px;
+  padding: 26px;
+  border: 1px dashed rgba(var(--rgb-ink), 0.34);
+  border-radius: 6px;
+  color: var(--color-muted);
+  text-align: center;
+}
+
+.empty-role svg {
+  color: var(--color-accent);
+}
+
+.empty-role strong {
+  color: var(--color-ink);
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+}
+
+.card-icon {
+  display: inline-grid;
+  width: 46px;
+  height: 46px;
+  place-items: center;
+  margin-bottom: 24px;
+  border: 1px solid currentColor;
+  border-radius: 4px;
+  color: var(--color-accent);
+  background: linear-gradient(135deg, rgba(var(--rgb-accent), 0.1), rgba(var(--rgb-steel), 0.08));
+}
+
+.process-list {
+  display: grid;
+  gap: 0;
+  margin-top: 34px;
+  border-top: 1px solid rgba(var(--rgb-paper), 0.42);
+}
+
+.process-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 58px;
+  border-bottom: 1px solid rgba(var(--rgb-paper), 0.24);
+  color: rgba(var(--rgb-paper), 0.92);
+  font-weight: 800;
+}
+
+.process-item span {
+  display: inline-grid;
+  width: 32px;
+  height: 32px;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid rgba(var(--rgb-accent), 0.72);
+  color: var(--color-accent);
+  font-size: 0.82rem;
+  font-weight: 900;
+}

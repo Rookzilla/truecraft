@@ -1,0 +1,34 @@
+@keyframes emberDrift {
+  from {
+    background-position: 0 0, 0 0, 0 0;
+  }
+
+  to {
+    background-position: 0 0, 0 0, 46px 0;
+  }
+}
+
+@keyframes lightSweep {
+  0%,
+  100% {
+    transform: translateX(-12%);
+    opacity: 0.38;
+  }
+
+  50% {
+    transform: translateX(12%);
+    opacity: 0.78;
+  }
+}
+
+@keyframes panelShimmer {
+  0%,
+  42% {
+    transform: translateX(-125%);
+  }
+
+  68%,
+  100% {
+    transform: translateX(125%);
+  }
+}
