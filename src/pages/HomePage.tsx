@@ -10,14 +10,30 @@ export function HomePage({
   candidateForm,
   copy,
   expertiseCards,
+  isLanguageMenuOpen,
+  isNightMode,
   lists,
+  locale,
+  onChangeLocale,
   onContact,
   onNavigate,
+  onToggleLanguageMenu,
+  onToggleNightMode,
   partnershipForm,
 }: HomePageProps) {
   return (
     <>
-      <Hero copy={copy} onContact={onContact} onNavigate={onNavigate} />
+      <Hero
+        copy={copy}
+        isLanguageMenuOpen={isLanguageMenuOpen}
+        isNightMode={isNightMode}
+        locale={locale}
+        onChangeLocale={onChangeLocale}
+        onContact={onContact}
+        onNavigate={onNavigate}
+        onToggleLanguageMenu={onToggleLanguageMenu}
+        onToggleNightMode={onToggleNightMode}
+      />
       <AboutSection
         copy={copy}
         expertiseCards={expertiseCards}

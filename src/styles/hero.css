@@ -3,7 +3,8 @@
   --rgb-accent: var(--rgb-accent-night);
 
   position: relative;
-  min-height: 92vh;
+  min-height: 100vh;
+  min-height: 100svh;
   overflow: hidden;
   color: var(--color-paper);
   background: var(--color-night);
@@ -11,7 +12,7 @@
 }
 
 .hero-section > .container {
-  max-width: 1560px;
+  max-width: 1320px;
 }
 .hero-image {
   position: absolute;
@@ -116,13 +117,23 @@
   display: none;
 }
 
+.mobile-language-switcher {
+  display: none;
+}
+
+.mobile-theme-toggle {
+  display: none;
+}
+
 .hero-grid {
+  min-height: 100vh;
+  min-height: 100svh;
   padding-top: 86px;
   padding-bottom: 24px;
 }
 
 .hero-copy {
-  max-width: 850px;
+  max-width: 780px;
 }
 
 .eyebrow,
@@ -148,7 +159,7 @@
   margin: 0;
   color: var(--color-white);
   font-family: var(--font-display);
-  font-size: clamp(4.3rem, 10vw, 9.8rem);
+  font-size: clamp(4.3rem, 8.2vw, 8.8rem);
   line-height: 0.9;
   font-weight: 700;
   letter-spacing: 0;

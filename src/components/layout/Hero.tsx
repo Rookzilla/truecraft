@@ -1,18 +1,32 @@
 import { useState } from 'react'
-import { ArrowRight, Menu, X } from 'lucide-react'
+import { ArrowRight, Menu, Moon, Sun, X } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { Button, Col, Container, Nav, Row } from 'react-bootstrap'
 import heroImage from '../../assets/truecraft-forge-hero.png'
+import { LanguageSwitcher } from '../ui/LanguageSwitcher'
+import type { Locale } from '../../i18n'
 import type { LanguageCopy } from '../../types/content'
 
 export function Hero({
   copy,
+  isLanguageMenuOpen,
+  isNightMode,
+  locale,
+  onChangeLocale,
   onNavigate,
   onContact,
+  onToggleLanguageMenu,
+  onToggleNightMode,
 }: {
   copy: LanguageCopy
+  isLanguageMenuOpen: boolean
+  isNightMode: boolean
+  locale: Locale
+  onChangeLocale: (locale: Locale) => void
   onNavigate: (href: string) => void
   onContact: () => void
+  onToggleLanguageMenu: () => void
+  onToggleNightMode: () => void
 }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const closeMenu = () => setIsMenuOpen(false)
@@ -36,6 +50,26 @@ export function Hero({
             <span>TC</span>
             TrueCraft
           </a>
+          <div className="mobile-language-switcher">
+            <LanguageSwitcher
+              isCompact
+              isOpen={isLanguageMenuOpen}
+              label={copy.titles.minibar.language}
+              locale={locale}
+              onChange={onChangeLocale}
+              onToggle={onToggleLanguageMenu}
+            />
+          </div>
+          <button
+            className="mobile-theme-toggle"
+            type="button"
+            onClick={onToggleNightMode}
+            aria-pressed={isNightMode}
+            aria-label={isNightMode ? copy.titles.minibar.nightOff : copy.titles.minibar.nightOn}
+            title={isNightMode ? copy.titles.minibar.nightOff : copy.titles.minibar.nightOn}
+          >
+            {isNightMode ? <Sun size={20} aria-hidden="true" /> : <Moon size={20} aria-hidden="true" />}
+          </button>
           <button
             aria-controls="site-navigation"
             aria-expanded={isMenuOpen}
@@ -90,7 +124,7 @@ export function Hero({
           </div>
         </Nav>
 
-        <Row id="top" className="min-vh-100 align-items-center hero-grid">
+        <Row id="top" className="align-items-center hero-grid">
           <Col lg={7} xl={6}>
             <motion.div
               initial={{ opacity: 0, y: 24 }}

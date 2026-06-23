@@ -11,6 +11,8 @@ type RoutePath = (typeof routes)[number]
 
 const routeSet = new Set<string>(routes)
 
+const getPreferredNightMode = () => window.matchMedia('(prefers-color-scheme: dark)').matches
+
 const getCurrentRoute = (): RoutePath => {
   const path = window.location.pathname
   return routeSet.has(path) ? (path as RoutePath) : '/'
@@ -31,7 +33,7 @@ const scrollToPageTarget = (hash: string) => {
 }
 
 function App() {
-  const [isNightMode, setIsNightMode] = useState(false)
+  const [isNightMode, setIsNightMode] = useState(getPreferredNightMode)
   const [locale, setLocale] = useState<Locale>('en')
   const [isLanguageMenuOpen, setIsLanguageMenuOpen] = useState(false)
   const [route, setRoute] = useState<RoutePath>(getCurrentRoute)
@@ -47,6 +49,16 @@ function App() {
     { href: '/#opportunities', label: copy.titles.nav.roles },
     { href: '/#resources', label: copy.titles.nav.candidates },
   ]
+
+  useEffect(() => {
+    const colorScheme = window.matchMedia('(prefers-color-scheme: dark)')
+    const handleColorSchemeChange = (event: MediaQueryListEvent) => {
+      setIsNightMode(event.matches)
+    }
+
+    colorScheme.addEventListener('change', handleColorSchemeChange)
+    return () => colorScheme.removeEventListener('change', handleColorSchemeChange)
+  }, [])
 
   useEffect(() => {
     const handlePopState = () => {
@@ -113,9 +125,18 @@ function App() {
       candidateForm: forms.candidateForm,
       copy,
       expertiseCards: content.expertiseCards,
+      isLanguageMenuOpen,
+      isNightMode,
       lists: content.lists,
+      locale,
+      onChangeLocale: (nextLocale: Locale) => {
+        setLocale(nextLocale)
+        setIsLanguageMenuOpen(false)
+      },
       onContact: handleContact,
       onNavigate: navigate,
+      onToggleNightMode: () => setIsNightMode((current) => !current),
+      onToggleLanguageMenu: () => setIsLanguageMenuOpen((current) => !current),
       partnershipForm: forms.partnershipForm,
     }),
     [
@@ -126,6 +147,9 @@ function App() {
       forms.candidateForm,
       forms.partnershipForm,
       handleContact,
+      isLanguageMenuOpen,
+      isNightMode,
+      locale,
       navigate,
     ],
   )

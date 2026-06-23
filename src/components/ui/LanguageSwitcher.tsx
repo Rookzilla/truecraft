@@ -25,18 +25,20 @@ export function LanguageSwitcher({
   onChange,
   onToggle,
   label,
+  isCompact = false,
 }: {
   isOpen: boolean
   locale: Locale
   onChange: (locale: Locale) => void
   onToggle: () => void
   label: string
+  isCompact?: boolean
 }) {
   const activeLanguage = languageOptions.find((option) => option.locale === locale) ?? languageOptions[0]
   const inactiveLanguages = languageOptions.filter((option) => option.locale !== locale)
 
   return (
-    <div className="language-switcher">
+    <div className={isCompact ? 'language-switcher is-compact' : 'language-switcher'}>
       <span className="language-label">{label}</span>
       <button
         className="language-trigger"
@@ -44,10 +46,12 @@ export function LanguageSwitcher({
         onClick={onToggle}
         aria-expanded={isOpen}
         aria-haspopup="true"
+        aria-label={`${label}: ${activeLanguage.label}`}
+        title={activeLanguage.label}
       >
         <span className="language-current">
           <FlagGroup countries={activeLanguage.countries} label={activeLanguage.label} />
-          <strong>{activeLanguage.label}</strong>
+          {!isCompact && <strong>{activeLanguage.label}</strong>}
         </span>
       </button>
       <div className={isOpen ? 'language-menu is-open' : 'language-menu'}>
@@ -55,13 +59,15 @@ export function LanguageSwitcher({
           <button
             key={option.locale}
             type="button"
+            aria-label={option.label}
+            title={option.label}
             onClick={() => {
             onChange(option.locale)
             }}
           >
             <span className="language-option">
               <FlagGroup countries={option.countries} label={option.label} />
-              <span>{option.label}</span>
+              {!isCompact && <span>{option.label}</span>}
             </span>
           </button>
         ))}
