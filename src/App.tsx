@@ -2,11 +2,12 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Minibar } from './components/ui/Minibar'
 import { buildFormCopy, buildLocalizedContent } from './data/content'
 import { translations, type Locale } from './i18n'
+import { AdminPage } from './pages/AdminPage'
 import { AboutPage, BusinessPage, CandidatesPage, HomePage, OpportunitiesPage } from './pages/HomePage'
 import { activateContactTarget } from './utils/contactTarget'
 import './App.css'
 
-const routes = ['/', '/about', '/businesses', '/opportunities', '/candidates'] as const
+const routes = ['/', '/about', '/businesses', '/opportunities', '/candidates', '/admin'] as const
 type RoutePath = (typeof routes)[number]
 
 const routeSet = new Set<string>(routes)
@@ -164,6 +165,8 @@ function App() {
         return <OpportunitiesPage {...pageProps} />
       case '/candidates':
         return <CandidatesPage {...pageProps} />
+      case '/admin':
+        return <AdminPage />
       default:
         return <HomePage {...pageProps} />
     }

@@ -106,6 +106,7 @@ export function buildFormCopy(copy: LanguageCopy) {
 
   const businessForm: FormConfig = {
     ...shared,
+    type: 'business',
     title: copy.titles.forms.businessTitle,
     fields: businessFields,
     attachments: true,
@@ -114,6 +115,7 @@ export function buildFormCopy(copy: LanguageCopy) {
 
   const partnershipForm: FormConfig = {
     ...shared,
+    type: 'partnership',
     title: copy.titles.forms.partnershipTitle,
     fields: businessFields.map((field) => ({
       ...field,
@@ -125,6 +127,7 @@ export function buildFormCopy(copy: LanguageCopy) {
 
   const candidateForm: FormConfig = {
     ...shared,
+    type: 'candidate',
     title: copy.titles.forms.candidateTitle,
     intro: copy.details.resources.supportText,
     fields: buildCandidateFields(copy),

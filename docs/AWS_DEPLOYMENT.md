@@ -7,11 +7,19 @@ The Vite application remains at the repository root. AWS CDK lives in
 
 - A private, encrypted S3 bucket with all public access blocked.
 - A CloudFront distribution using Origin Access Control (OAC).
+- A CloudFront `/api/*` behavior that forwards website submissions to an HTTP
+  API.
+- An API Gateway HTTP API and ARM Lambda handler for website submissions and
+  the private admin dashboard.
+- A private, encrypted S3 bucket for candidate CV uploads.
+- A DynamoDB table for candidate/enquiry records.
+- An SES email identity for formatted notification emails.
+- A GuardDuty Malware Protection for S3 plan that scans uploaded CVs and writes
+  the managed `GuardDutyMalwareScanStatus` object tag.
 - SPA fallbacks that return `/index.html` with status `200` for S3 `403` and
   `404` responses.
 - GitHub Actions uploads revalidated HTML and one-year immutable hashed
   Vite assets after CDK deploys the infrastructure.
-- No backend or deployment-helper Lambda functions.
 
 The expected repository structure is:
 
@@ -45,7 +53,11 @@ npm run test --if-present
 npm run lint
 npm run build
 npm run cdk:synth
-npm run cdk:deploy -- --require-approval never --outputs-file cdk-outputs.json
+npm run cdk:deploy -- \
+  --parameters AdminPassword="replace-with-a-long-private-password" \
+  --parameters NotificationEmail="andybrown7890@gmail.com" \
+  --require-approval never \
+  --outputs-file cdk-outputs.json
 ```
 
 For a local deployment, read `SiteBucketName` and `DistributionId` from
@@ -76,6 +88,28 @@ npm run cdk:destroy -- --force
 
 The deploy command writes and prints the `CloudFrontUrl` stack output.
 CloudFront can take several minutes to finish its first global deployment.
+
+### Backend and admin notes
+
+- The admin dashboard is available at `/admin`.
+- The temporary admin password is supplied at deploy time through the
+  `AdminPassword` CloudFormation parameter. Use at least 12 characters.
+- The notification address defaults to `andybrown7890@gmail.com` and can be
+  changed with the `NotificationEmail` parameter.
+- SES creates an email identity for `NotificationEmail`. AWS sends a
+  verification email to that address; notifications will not send until the
+  verification link is accepted.
+- If the SES account is still in sandbox mode, sending is limited to verified
+  addresses. That is acceptable for this first test setup because the sender
+  and recipient are the same verified email identity.
+- CVs are stored privately. The dashboard requests a short-lived S3 download
+  URL only after GuardDuty has tagged the object as `NO_THREATS_FOUND`.
+- CV uploads use short-lived signed S3 upload URLs. This avoids routing 10 MB
+  CV files through API Gateway and keeps the 10 MB limit practical.
+- Uploads are limited to PDF or DOCX and 10 MB in both the browser and Lambda.
+- The Lambda also tracks monthly uploaded CV bytes and rejects new CV uploads
+  after 1 GB/month to stay aligned with GuardDuty Malware Protection for S3's
+  monthly free scanning allowance.
 
 ## One-Time AWS Setup
 
@@ -253,9 +287,20 @@ secrets:
 AWS_ACCOUNT_ID=123456789012
 AWS_REGION=eu-west-2
 AWS_ROLE_ARN=arn:aws:iam::123456789012:role/truecraft-main-deploy
+NOTIFICATION_EMAIL=andybrown7890@gmail.com
 ```
 
 No `AWS_ACCESS_KEY_ID` or `AWS_SECRET_ACCESS_KEY` is required.
+
+Add this GitHub environment **secret**:
+
+```text
+ADMIN_PASSWORD=replace-with-a-long-private-password
+```
+
+The GitHub Actions deploy workflow passes `ADMIN_PASSWORD` and
+`NOTIFICATION_EMAIL` into CDK as CloudFormation parameters, then uploads the
+frontend bundle and invalidates CloudFront.
 
 ## First Deployment Checklist
 
@@ -265,12 +310,14 @@ No `AWS_ACCESS_KEY_ID` or `AWS_SECRET_ACCESS_KEY` is required.
 4. Confirm the GitHub OIDC provider exists in that AWS account.
 5. Confirm the IAM trust policy matches the repository name, case, and
    `production` environment subject exactly.
-6. Create the GitHub `production` environment and its three variables.
-7. Commit the root package files, `.github/`, `docs/`, and all of `infra/`.
-8. Push to `main` or manually run the workflow.
-9. Read `TruecraftStaticSite.CloudFrontUrl` from the deploy log or
+6. Create the GitHub `production` environment and its AWS variables.
+7. Add the `ADMIN_PASSWORD` environment secret and optional
+   `NOTIFICATION_EMAIL` environment variable.
+8. Commit the root package files, `.github/`, `docs/`, and all of `infra/`.
+9. Push to `main` or manually run the workflow.
+10. Read `TruecraftStaticSite.CloudFrontUrl` from the deploy log or
    CloudFormation stack outputs.
-10. Open the HTTPS URL, test a hard refresh, and test a nested React route.
+11. Open the HTTPS URL, test a hard refresh, and test a nested React route.
 
 ## Troubleshooting
 

@@ -25,6 +25,7 @@ export type TextField = {
 }
 
 export type FormConfig = {
+  type: 'business' | 'partnership' | 'candidate'
   title: string
   intro: string
   fields: TextField[]

@@ -24,6 +24,7 @@ jobs:
       AWS_ROLE_ARN: ${{ vars.AWS_ROLE_ARN }}
       CDK_DEFAULT_ACCOUNT: ${{ vars.AWS_ACCOUNT_ID }}
       CDK_DEFAULT_REGION: ${{ vars.AWS_REGION }}
+      NOTIFICATION_EMAIL: ${{ vars.NOTIFICATION_EMAIL || 'andybrown7890@gmail.com' }}
 
     steps:
       - name: Check out repository
@@ -59,6 +60,16 @@ jobs:
       - name: Typecheck infrastructure
         run: npm run typecheck --prefix infra
 
+      - name: Validate deployment configuration
+        shell: bash
+        env:
+          ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
+        run: |
+          if [ -z "${ADMIN_PASSWORD}" ]; then
+            echo "Missing required GitHub environment secret: ADMIN_PASSWORD" >&2
+            exit 1
+          fi
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v6
         with:
@@ -67,10 +78,15 @@ jobs:
           role-session-name: truecraft-github-deploy
 
       - name: Deploy CDK stack
-        run: >
-          npm run deploy --prefix infra --
-          --require-approval never
-          --outputs-file cdk-outputs.json
+        shell: bash
+        env:
+          ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
+        run: |
+          npm run deploy --prefix infra -- \
+            --parameters "AdminPassword=${ADMIN_PASSWORD}" \
+            --parameters "NotificationEmail=${NOTIFICATION_EMAIL}" \
+            --require-approval never \
+            --outputs-file cdk-outputs.json
 
       - name: Read deployment outputs
         id: stack
