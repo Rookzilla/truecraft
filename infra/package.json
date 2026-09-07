@@ -1,0 +1,26 @@
+{
+  "name": "truecraft-infra",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "synth": "cdk synth",
+    "deploy": "cdk deploy",
+    "destroy": "cdk destroy"
+  },
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.1101.0",
+    "@aws-sdk/client-s3": "^3.1101.0",
+    "@aws-sdk/client-ses": "^3.1101.0",
+    "@aws-sdk/s3-request-presigner": "^3.1101.0",
+    "aws-cdk-lib": "^2.268.0",
+    "constructs": "10.6.0"
+  },
+  "devDependencies": {
+    "@types/node": "24.12.3",
+    "aws-cdk": "^2.1140.0",
+    "esbuild": "^0.28.1",
+    "ts-node": "10.9.2",
+    "typescript": "6.0.2"
+  }
+}

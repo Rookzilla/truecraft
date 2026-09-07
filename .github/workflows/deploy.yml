@@ -1,0 +1,190 @@
+name: Deploy static site
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: production-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    env:
+      AWS_ACCOUNT_ID: ${{ vars.AWS_ACCOUNT_ID }}
+      AWS_REGION: ${{ vars.AWS_REGION }}
+      AWS_ROLE_ARN: ${{ vars.AWS_ROLE_ARN }}
+      CDK_DEFAULT_ACCOUNT: ${{ vars.AWS_ACCOUNT_ID }}
+      CDK_DEFAULT_REGION: ${{ vars.AWS_REGION }}
+      NOTIFICATION_EMAIL: ${{ vars.NOTIFICATION_EMAIL || 'notifications@example.com' }}
+      CUSTOM_DOMAIN_NAME: ${{ vars.CUSTOM_DOMAIN_NAME }}
+      CLOUDFRONT_CERTIFICATE_ARN: ${{ vars.CLOUDFRONT_CERTIFICATE_ARN }}
+      ADMIN_AUTH_CALLBACK_URLS: ${{ vars.ADMIN_AUTH_CALLBACK_URLS }}
+      ADMIN_AUTH_LOGOUT_URLS: ${{ vars.ADMIN_AUTH_LOGOUT_URLS }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            infra/package-lock.json
+
+      - name: Install application dependencies
+        run: npm ci
+
+      - name: Install infrastructure dependencies
+        run: npm ci --prefix infra
+
+      - name: Typecheck application
+        run: npm run typecheck
+
+      - name: Run tests when configured
+        run: npm run test --if-present
+
+      - name: Lint application
+        run: npm run lint
+
+      - name: Build application
+        run: npm run build
+
+      - name: Typecheck infrastructure
+        run: npm run typecheck --prefix infra
+
+      - name: Validate deployment configuration
+        shell: bash
+        env:
+          ADMIN_PASSWORD_HASH: ${{ secrets.ADMIN_PASSWORD_HASH }}
+          PII_ENCRYPTION_KEY_BASE64: ${{ secrets.PII_ENCRYPTION_KEY_BASE64 }}
+        run: |
+          if [ -z "${ADMIN_PASSWORD_HASH}" ]; then
+            echo "Missing required GitHub environment secret: ADMIN_PASSWORD_HASH" >&2
+            exit 1
+          fi
+          if [ -z "${PII_ENCRYPTION_KEY_BASE64}" ]; then
+            echo "Missing required GitHub environment secret: PII_ENCRYPTION_KEY_BASE64" >&2
+            exit 1
+          fi
+          if [ -n "${CUSTOM_DOMAIN_NAME}" ] && [ -z "${CLOUDFRONT_CERTIFICATE_ARN}" ]; then
+            echo "CUSTOM_DOMAIN_NAME is set, but CLOUDFRONT_CERTIFICATE_ARN is missing" >&2
+            exit 1
+          fi
+          if [ -z "${CUSTOM_DOMAIN_NAME}" ] && [ -n "${CLOUDFRONT_CERTIFICATE_ARN}" ]; then
+            echo "CLOUDFRONT_CERTIFICATE_ARN is set, but CUSTOM_DOMAIN_NAME is missing" >&2
+            exit 1
+          fi
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ env.AWS_ROLE_ARN }}
+          role-session-name: truecraft-github-deploy
+
+      - name: Resolve admin auth URLs
+        id: admin-auth
+        shell: bash
+        run: |
+          CALLBACK_URLS="${ADMIN_AUTH_CALLBACK_URLS}"
+          LOGOUT_URLS="${ADMIN_AUTH_LOGOUT_URLS}"
+
+          if [ -z "$CALLBACK_URLS" ] && [ -n "$CUSTOM_DOMAIN_NAME" ]; then
+            CALLBACK_URLS="https://${CUSTOM_DOMAIN_NAME}/admin,http://localhost:5173/admin"
+          fi
+
+          if [ -z "$CALLBACK_URLS" ]; then
+            EXISTING_URL=$(aws cloudformation describe-stacks \
+              --stack-name TruecraftStaticSite \
+              --query "Stacks[0].Outputs[?OutputKey=='CloudFrontUrl'].OutputValue | [0]" \
+              --output text 2>/dev/null || true)
+            if [ -n "$EXISTING_URL" ] && [ "$EXISTING_URL" != "None" ]; then
+              CALLBACK_URLS="${EXISTING_URL}/admin,http://localhost:5173/admin"
+            fi
+          fi
+
+          CALLBACK_URLS="${CALLBACK_URLS:-http://localhost:5173/admin}"
+          LOGOUT_URLS="${LOGOUT_URLS:-$CALLBACK_URLS}"
+
+          echo "callback_urls=$CALLBACK_URLS" >> "$GITHUB_OUTPUT"
+          echo "logout_urls=$LOGOUT_URLS" >> "$GITHUB_OUTPUT"
+
+      - name: Deploy CDK stack
+        shell: bash
+        env:
+          ADMIN_PASSWORD_HASH: ${{ secrets.ADMIN_PASSWORD_HASH }}
+          PII_ENCRYPTION_KEY_BASE64: ${{ secrets.PII_ENCRYPTION_KEY_BASE64 }}
+        run: |
+          npm run deploy --prefix infra -- \
+            --parameters "AdminPasswordHash=${ADMIN_PASSWORD_HASH}" \
+            --parameters "PiiEncryptionKeyBase64=${PII_ENCRYPTION_KEY_BASE64}" \
+            --parameters "NotificationEmail=${NOTIFICATION_EMAIL}" \
+            --parameters "AdminAuthCallbackUrls=${{ steps.admin-auth.outputs.callback_urls }}" \
+            --parameters "AdminAuthLogoutUrls=${{ steps.admin-auth.outputs.logout_urls }}" \
+            --require-approval never \
+            --outputs-file cdk-outputs.json
+
+      - name: Read deployment outputs
+        id: stack
+        working-directory: infra
+        shell: bash
+        run: |
+          BUCKET=$(node -p "require('./cdk-outputs.json').TruecraftStaticSite.SiteBucketName")
+          DISTRIBUTION=$(node -p "require('./cdk-outputs.json').TruecraftStaticSite.DistributionId")
+          URL=$(node -p "require('./cdk-outputs.json').TruecraftStaticSite.CloudFrontUrl")
+          CUSTOM_URL=$(node -p "require('./cdk-outputs.json').TruecraftStaticSite.CustomDomainUrl || ''")
+          ADMIN_AUTH_URL=$(node -p "require('./cdk-outputs.json').TruecraftStaticSite.AdminAuthUrl")
+          ADMIN_CLIENT_ID=$(node -p "require('./cdk-outputs.json').TruecraftStaticSite.AdminUserPoolClientId")
+          echo "bucket=$BUCKET" >> "$GITHUB_OUTPUT"
+          echo "distribution=$DISTRIBUTION" >> "$GITHUB_OUTPUT"
+          echo "url=$URL" >> "$GITHUB_OUTPUT"
+          echo "custom_url=$CUSTOM_URL" >> "$GITHUB_OUTPUT"
+          echo "admin_auth_url=$ADMIN_AUTH_URL" >> "$GITHUB_OUTPUT"
+          echo "admin_client_id=$ADMIN_CLIENT_ID" >> "$GITHUB_OUTPUT"
+
+      - name: Write runtime application config
+        run: |
+          cat > dist/config.js <<'EOF'
+          window.__TRUECRAFT_CONFIG__ = {
+            cognitoAuthUrl: "${{ steps.stack.outputs.admin_auth_url }}",
+            cognitoClientId: "${{ steps.stack.outputs.admin_client_id }}"
+          }
+          EOF
+
+      - name: Upload application shell
+        run: >
+          aws s3 sync dist "s3://${{ steps.stack.outputs.bucket }}"
+          --delete
+          --exclude "assets/*"
+          --cache-control "no-cache, no-store, must-revalidate"
+
+      - name: Upload immutable assets
+        run: >
+          aws s3 sync dist/assets "s3://${{ steps.stack.outputs.bucket }}/assets"
+          --delete
+          --cache-control "public, max-age=31536000, immutable"
+
+      - name: Invalidate CloudFront
+        run: >
+          aws cloudfront create-invalidation
+          --distribution-id "${{ steps.stack.outputs.distribution }}"
+          --paths "/*"
+
+      - name: Print website URL
+        run: |
+          echo "Website deployed to ${{ steps.stack.outputs.url }}"
+          if [ -n "${{ steps.stack.outputs.custom_url }}" ]; then
+            echo "Custom domain deployed to ${{ steps.stack.outputs.custom_url }}"
+          fi

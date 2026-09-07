@@ -1,0 +1,218 @@
+.content-section,
+.brief-section,
+.contact-section {
+  padding: 104px 0;
+}
+
+.content-section,
+.contact-section {
+  background: var(--color-paper);
+}
+
+.brief-section {
+  background:
+    linear-gradient(135deg, rgba(var(--rgb-accent), 0.22), rgba(var(--rgb-warm-surface), 0.18)),
+    var(--color-warm-surface);
+  color: var(--color-paper);
+}
+
+.site-shell:not(.is-night) .brief-section {
+  --color-accent: var(--color-white);
+  --rgb-accent: var(--rgb-white);
+}
+
+.site-shell:not(.is-night) .brief-section .section-contact-inverse {
+  border-color: rgba(var(--rgb-white), 0.58);
+  color: var(--color-white);
+  background: rgba(var(--rgb-night), 0.72);
+}
+
+.site-shell:not(.is-night) .brief-section .section-contact-inverse:hover,
+.site-shell:not(.is-night) .brief-section .section-contact-inverse:focus-visible,
+.site-shell:not(.is-night) .brief-section .section-contact-inverse:active {
+  border-color: var(--color-white);
+  color: var(--color-night);
+  background: var(--color-white);
+}
+
+.section-heading {
+  margin-bottom: 38px;
+  padding-bottom: 26px;
+  border-bottom: 1px solid var(--color-ink);
+}
+
+.section-heading p {
+  max-width: 720px;
+  margin: 22px 0 0;
+}
+
+.about-heading {
+  margin-bottom: 48px;
+  padding-bottom: 34px;
+  border-bottom-color: rgba(var(--rgb-ink), 0.18);
+}
+
+h2 {
+  margin: 0;
+  color: var(--color-ink);
+  font-family: var(--font-display);
+  font-size: clamp(2.8rem, 5.6vw, 5.8rem);
+  line-height: 1;
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
+.quote-heading {
+  position: relative;
+  max-width: 1180px;
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  font-size: clamp(1.55rem, 3vw, 2.85rem);
+  line-height: 1.12;
+  font-weight: 600;
+  text-wrap: balance;
+}
+
+.quote-heading span {
+  display: inline-block;
+  color: var(--color-accent);
+  font-family: var(--font-display);
+  font-size: 0.74em;
+  font-weight: 700;
+  transform: translateY(-0.16em);
+}
+
+.section-title-kicker {
+  margin-bottom: 22px;
+  font-size: clamp(1.25rem, 2.3vw, 2rem);
+  letter-spacing: 0.1em;
+}
+
+.about-heading p {
+  max-width: 520px;
+  margin: 22px 0 0;
+  font-size: 1rem;
+}
+
+.single-line-heading {
+  max-width: none;
+  margin-bottom: 18px;
+  font-size: clamp(2.25rem, 4.2vw, 3.75rem);
+  white-space: nowrap;
+}
+
+.opportunities-heading {
+  display: block;
+  max-width: 1040px;
+  font-size: clamp(1.8rem, 3.2vw, 3rem);
+  line-height: 1.02;
+}
+
+.opportunities-heading span,
+.opportunities-heading em {
+  display: inline;
+}
+
+.opportunities-heading em {
+  color: var(--color-accent);
+  font-style: normal;
+}
+
+.opportunities-heading + p {
+  max-width: 660px;
+  margin-top: 24px;
+}
+
+.resources-heading {
+  max-width: 920px;
+  font-size: clamp(1.8rem, 3.2vw, 3rem);
+  line-height: 1.04;
+}
+
+.resources-heading em {
+  color: var(--color-accent);
+  font-style: normal;
+}
+
+.resources-heading + p {
+  max-width: 650px;
+  margin-top: 22px;
+}
+
+.secondary-display-heading {
+  margin: 0;
+  color: var(--color-ink);
+  font-family: var(--font-display);
+  font-weight: 700;
+}
+
+.role-expertise-grid {
+  margin-top: 0;
+}
+
+.role-expertise-grid .row > [class*="col"],
+.role-list-grid > [class*="col"] {
+  display: flex;
+}
+
+.role-list-grid {
+  margin-top: 24px;
+}
+
+.expertise-role-card,
+.role-expertise-grid .question-panel {
+  width: 100%;
+}
+
+.section-contact {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 0;
+  padding: 14px 18px;
+  border: 1px solid rgba(var(--rgb-accent), 0.56);
+  border-radius: 4px;
+  color: var(--color-accent);
+  background: rgba(var(--rgb-card), 0.76);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.section-contact span {
+  color: inherit;
+  font-size: var(--font-size-ui-label);
+  font-weight: var(--font-weight-ui-label);
+  letter-spacing: var(--letter-spacing-ui-label);
+  text-transform: uppercase;
+}
+
+.section-contact:hover,
+.section-contact:focus-visible,
+.section-contact:active {
+  border-color: var(--color-accent);
+  color: var(--color-white);
+  background: var(--color-accent);
+  outline: none;
+}
+
+.section-contact-inverse {
+  border-color: rgba(var(--rgb-accent), 0.7);
+  color: var(--color-accent);
+  background: rgba(var(--rgb-card), 0.94);
+}
+
+.section-heading-action {
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  padding-bottom: 2px;
+}
+
+.icon-grid-compact + .mission-panel {
+  margin-top: 34px;
+}
+
+#candidate-enquiry {
+  scroll-margin-top: 24px;
+}
+

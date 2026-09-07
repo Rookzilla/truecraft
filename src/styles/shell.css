@@ -1,0 +1,6 @@
+
+.site-shell {
+  min-height: 100vh;
+  background: var(--color-paper);
+  transition: background 220ms ease, color 220ms ease;
+}

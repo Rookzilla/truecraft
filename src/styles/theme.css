@@ -1,0 +1,149 @@
+.site-shell.is-night {
+  --color-accent: var(--color-accent-night);
+  --rgb-accent: var(--rgb-accent-night);
+
+  background: var(--color-night);
+  color: var(--color-paper);
+}
+
+.site-shell.is-night .section-contact,
+.site-shell.is-night .section-contact-inverse {
+  border-color: rgba(var(--rgb-accent), 0.58);
+  color: var(--color-accent);
+  background: rgba(var(--rgb-night), 0.72);
+}
+
+.site-shell.is-night .section-contact:hover,
+.site-shell.is-night .section-contact:focus-visible,
+.site-shell.is-night .section-contact:active {
+  border-color: var(--color-accent);
+  color: var(--color-night);
+  background: var(--color-accent);
+}
+
+.site-shell.is-night .content-section,
+.site-shell.is-night .contact-section {
+  background:
+    linear-gradient(135deg, rgba(var(--rgb-accent), 0.07), rgba(var(--rgb-steel), 0.1)),
+    var(--color-night-surface);
+  color: var(--color-paper);
+}
+
+.site-shell.is-night .section-heading {
+  border-bottom-color: rgba(var(--rgb-paper), 0.24);
+}
+
+.site-shell.is-night h2,
+.site-shell.is-night .quote-heading,
+.site-shell.is-night .question-panel h3,
+.site-shell.is-night .feature-card h3,
+.site-shell.is-night .contact-panel h3,
+.site-shell.is-night .mission-panel h3,
+.site-shell.is-night .copy-block h3,
+.site-shell.is-night .promise-list strong,
+.site-shell.is-night .empty-role strong {
+  color: var(--color-cream);
+}
+
+.site-shell.is-night .content-section p,
+.site-shell.is-night .contact-section p,
+.site-shell.is-night .crafted-copy,
+.site-shell.is-night .promise-list,
+.site-shell.is-night .empty-role,
+.site-shell.is-night .icon-grid li {
+  color: rgba(var(--rgb-paper), 0.72);
+}
+
+.site-shell.is-night .question-panel,
+.site-shell.is-night .feature-card,
+.site-shell.is-night .contact-panel,
+.site-shell.is-night .mission-panel {
+  border-color: rgba(var(--rgb-accent), 0.18);
+  background:
+    linear-gradient(145deg, rgba(var(--rgb-accent), 0.08), rgba(var(--rgb-white), 0.025)),
+    rgba(var(--rgb-white), 0.045);
+}
+
+.site-shell.is-night .candidate-contact-panel {
+  --contact-panel-rest-border: rgba(var(--rgb-accent), 0.18);
+}
+
+.site-shell.is-night .mission-panel {
+  border-color: rgba(var(--rgb-accent), 0.42);
+}
+
+.site-shell.is-night .icon-grid li {
+  border-color: rgba(var(--rgb-accent), 0.14);
+  background: rgba(var(--rgb-white), 0.035);
+}
+
+.site-shell.is-night .icon-grid li:hover {
+  color: var(--color-white);
+  box-shadow: 0 14px 34px rgba(var(--rgb-black), 0.18);
+}
+
+.site-shell.is-night .icon-grid li > span,
+.site-shell.is-night .card-icon,
+.site-shell.is-night .empty-role svg {
+  color: var(--color-accent);
+}
+
+.site-shell.is-night .icon-grid li:hover > span {
+  border-color: var(--color-accent);
+  color: var(--color-night);
+  background: var(--color-accent);
+}
+
+.site-shell.is-night .icon-grid li:hover > span svg {
+  color: var(--color-night);
+}
+
+.site-shell.is-night .promise-list {
+  border-top-color: rgba(var(--rgb-paper), 0.16);
+}
+
+.site-shell.is-night .empty-role {
+  border-color: rgba(var(--rgb-accent), 0.18);
+}
+
+.site-shell.is-night .contact-panel .form-control,
+.site-shell.is-night .contact-panel .input-group-text {
+  border-color: rgba(var(--rgb-paper), 0.28);
+  color: var(--color-paper);
+  background-color: rgba(var(--rgb-white), 0.035);
+}
+
+.site-shell.is-night .contact-panel .form-control::placeholder {
+  color: rgba(var(--rgb-paper), 0.42);
+}
+
+.site-shell.is-night .contact-panel .file-upload-control {
+  border-color: rgba(var(--rgb-paper), 0.28);
+  color: var(--color-paper);
+  background: rgba(var(--rgb-white), 0.035);
+}
+
+.site-shell.is-night .contact-panel .file-upload-control em {
+  color: rgba(var(--rgb-paper), 0.56);
+}
+
+.site-shell.is-night .form-status {
+  color: var(--color-paper);
+}
+
+.site-shell.is-night .language-label {
+  color: rgba(var(--rgb-paper), 0.64);
+}
+
+.site-shell.is-night .language-trigger,
+.site-shell.is-night .language-menu button {
+  border-color: rgba(var(--rgb-accent), 0.36);
+  color: var(--color-paper);
+  background: rgba(var(--rgb-white), 0.045);
+}
+
+.site-shell.is-night .language-trigger:hover,
+.site-shell.is-night .language-menu button:hover {
+  border-color: rgba(var(--rgb-accent), 0.72);
+  background: rgba(var(--rgb-accent), 0.12);
+}

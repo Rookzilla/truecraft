@@ -1,0 +1,109 @@
+.language-switcher {
+  position: relative;
+  display: grid;
+  gap: 8px;
+  width: 100%;
+}
+
+.language-label {
+  color: var(--color-muted);
+  font-size: var(--font-size-ui-label);
+  font-weight: var(--font-weight-ui-label);
+  letter-spacing: var(--letter-spacing-ui-label);
+  text-transform: uppercase;
+}
+
+.language-trigger,
+.language-menu button {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  min-height: 42px;
+  border: 1px solid rgba(var(--rgb-accent), 0.42);
+  border-radius: 999px;
+  color: var(--color-ink);
+  background: rgba(var(--rgb-card), 0.78);
+  font: inherit;
+  cursor: pointer;
+  transition: border-color 180ms ease, background 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+}
+
+.language-trigger {
+  position: relative;
+  z-index: 2;
+  justify-content: flex-start;
+  padding: 8px 14px;
+  box-shadow: 0 8px 26px rgba(var(--rgb-ink), 0.08);
+}
+
+.language-current,
+.language-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.language-flags {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.language-flag {
+  width: 22px;
+  border-radius: 3px;
+  box-shadow: 0 0 0 1px rgba(var(--rgb-ink), 0.12);
+}
+
+.language-trigger strong {
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.language-trigger:hover,
+.language-menu button:hover {
+  border-color: var(--color-accent);
+  background: rgba(var(--rgb-accent), 0.22);
+  box-shadow: 0 10px 30px rgba(var(--rgb-accent), 0.12);
+}
+
+.language-menu {
+  position: absolute;
+  right: calc(100% - 10px);
+  left: auto;
+  top: 50%;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(18px, -50%);
+  transition: opacity 200ms ease, transform 240ms ease;
+}
+
+.language-menu.is-open {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translate(0, -50%);
+}
+
+.language-menu button {
+  justify-content: flex-start;
+  padding: 8px 13px;
+  color: var(--color-muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.inverse-heading p {
+  max-width: 920px;
+}
+
+.brief-section h2,
+.brief-section h3,
+.brief-section .section-kicker {
+  color: var(--color-paper);
+}
