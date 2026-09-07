@@ -14,6 +14,7 @@ AWS deployment instructions are in [`docs/AWS_DEPLOYMENT.md`](docs/AWS_DEPLOYMEN
 - AWS CDK
 - AWS Lambda
 - Amazon API Gateway HTTP API
+- Amazon Cognito
 - Amazon DynamoDB
 - Amazon S3
 - Amazon SES
@@ -141,199 +142,75 @@ npm run security:generate-pii-key
 
 Keep `PII_ENCRYPTION_KEY_BASE64` stable. Changing it without a rotation process means existing encrypted DynamoDB fields cannot be decrypted. If rotation is needed, introduce a second key version, decrypt with the old key, re-encrypt with the new key, and update `piiEncryptionVersion` after each record is migrated.
 
-## Security Implementation
+## Security Posture
 
-This repository includes a free-tier-friendly security implementation. It intentionally avoids customer-managed KMS keys and Secrets Manager so that the site remains deployable at very low cost.
+The security model is deliberately practical: strong controls where the app handles candidate data, while keeping the AWS footprint cheap enough to run as a small recruitment site. The detailed points are collapsed so the README stays readable.
 
-### Encrypted Fields
+<details>
+<summary>Implemented controls</summary>
 
-These DynamoDB attributes are encrypted before storage:
+### Admin access
 
-- `name`
-- `email`
-- `phone`
-- `role`
-- `company`
-- `jobTitle`
-- `message`
-- `notes`
+- `/api/admin/*` is protected by an API Gateway HTTP API JWT authorizer.
+- Admin login uses Amazon Cognito Hosted UI.
+- The browser uses authorization-code flow with PKCE and sends `Authorization: Bearer <token>` to admin routes.
+- Cognito self-signup is disabled, so admin users have to be created intentionally.
+- Authenticator-app MFA is available for admin users.
+- A legacy direct-Lambda password fallback remains for local/testing paths only. It uses PBKDF2 SHA-256, 310,000 iterations, a random 16-byte salt, a 32-byte derived key, and constant-time comparison.
 
-Each encrypted value is stored as a JSON envelope containing:
+### Candidate data
 
-- `v`: encryption envelope version.
-- `alg`: currently `aes-256-gcm`.
-- `iv`: base64 initialization vector.
-- `tag`: base64 authentication tag.
-- `data`: base64 ciphertext.
+- Sensitive DynamoDB fields are encrypted by the Lambda before storage with AES-256-GCM.
+- Encrypted fields are `name`, `email`, `phone`, `role`, `company`, `jobTitle`, `message`, and `notes`.
+- Each encrypted field is stored as an envelope with version, algorithm, IV, auth tag, and ciphertext.
+- `emailHash` is generated with HMAC-SHA256 so exact-match lookup can work without storing plaintext email.
+- Older plaintext records can still be read, but new writes use encrypted storage.
 
-These operational attributes remain plaintext so the backend can route, sort, filter, and manage records without decrypting everything:
+### CV storage
 
-- `id`
-- `type`
-- `monthKey`
-- `createdAt`
-- `updatedAt`
-- `approvedAt`
-- `status`
-- `scanStatus`
-- `tags`
-- `cvKey`
-- `cvFilename`
-- `cvMimeType`
-- `cvSize`
-- `piiEncryptionVersion`
-- `emailHash`
+- CV files are uploaded directly to a private S3 bucket through short-lived presigned URLs.
+- The CV bucket blocks public access, enforces SSL, uses versioning, and requires S3-managed `AES256` encryption for `incoming/*` uploads.
+- Lambda requests the same `AES256` header when issuing upload URLs.
+- CV download URLs are short-lived and only issued after GuardDuty Malware Protection for S3 reports `NO_THREATS_FOUND`.
 
-`emailHash` is generated with HMAC-SHA256 using the same free-tier PII key. It supports exact-match lookup patterns without storing the email address in plaintext.
+### Infrastructure and deployment
 
-### S3 Upload Enforcement
+- The static site bucket is private and served through CloudFront Origin Access Control.
+- CloudFront redirects viewers to HTTPS and uses managed security response headers.
+- GitHub Actions uses OIDC role assumption rather than long-lived AWS access keys.
+- Deployment secrets are passed through GitHub environment secrets and CloudFormation no-echo parameters.
+- Current public examples use placeholder account IDs, distribution IDs, and email addresses.
 
-The CV bucket uses S3-managed encryption and has a bucket policy that denies `s3:PutObject` to `incoming/*` unless the request includes:
+</details>
 
-```text
-x-amz-server-side-encryption: AES256
-```
+<details>
+<summary>Known trade-offs</summary>
 
-The bucket also denies non-TLS access through CDK's `enforceSSL` policy. The Lambda and presigned upload flow both request `AES256`, so compliant uploads continue to work while accidental unencrypted writes are blocked at the bucket boundary.
+- `PII_ENCRYPTION_KEY_BASE64` is still supplied to Lambda as an environment variable. That keeps the deployment cheap, but it is not as strong as Secrets Manager or KMS-backed envelope encryption.
+- There is no automatic PII key rotation. Rotating the key needs a planned migration because existing encrypted records depend on it.
+- Randomized AES-GCM encryption prevents partial text search across encrypted fields.
+- DynamoDB server-side encryption is AWS-managed rather than customer-managed KMS.
+- The default CloudFront certificate is fine for the generated CloudFront domain, but custom domain deployments should use ACM in `us-east-1` so TLS policy can be controlled.
+- CloudFormation no-echo parameters reduce casual exposure, but they are not a complete secret-management system.
+- First Cognito admin users still have to be created operationally after deployment.
 
-### Admin Authentication
+</details>
 
-The deployed admin flow uses:
+<details>
+<summary>Higher-budget improvements</summary>
 
-- Amazon Cognito user pool with self-signup disabled.
-- Cognito Hosted UI authorization-code flow with PKCE.
-- API Gateway HTTP API JWT authorizer on `/api/admin/*`.
-- Browser-held session storage for the short-lived Cognito access token.
-- Optional authenticator-app MFA for admin users.
+- Move encryption material into AWS Secrets Manager or SSM Parameter Store SecureString.
+- Use customer-managed KMS keys with automatic rotation for S3, DynamoDB, and application-level envelope encryption.
+- Use per-record KMS data keys so DynamoDB access alone is not enough to recover candidate PII.
+- Enable CloudTrail data events for S3 object access.
+- Add AWS WAF in front of CloudFront and API routes.
+- Add CloudWatch alarms for unusual admin/API activity.
+- Add explicit CloudWatch log retention and structured security events with PII redaction.
+- Record admin identity on candidate updates and deletes for a stronger audit trail.
+- Add AWS Budgets and anomaly alerts for operational cost control.
 
-The legacy direct-Lambda fallback still supports password verification using:
+</details>
 
-- PBKDF2
-- SHA-256
-- 310,000 iterations
-- random 16-byte salt
-- 32-byte derived key
-- constant-time comparison with `timingSafeEqual`
+## Public Release Audit
 
-The stored hash format is:
-
-```text
-pbkdf2$sha256$310000$base64-salt$base64-hash
-```
-
-This keeps the raw fallback password out of CloudFormation parameters, Lambda environment variables, and source code.
-
-### Compatibility With Existing Records
-
-The decrypt helper falls back to returning plaintext if a value is not an encryption envelope. That means older records written before field-level encryption can still be displayed in the admin dashboard. New records are encrypted before storage.
-
-### Remaining Free-Tier Limitations
-
-- The PII encryption key is still a Lambda environment variable.
-- There is no automatic secret rotation.
-- MFA and per-admin identity are available through Cognito, but first admin users still need to be created operationally.
-- Randomized encryption prevents partial text search over encrypted fields.
-- CloudFormation no-echo parameters reduce display exposure but are not a full secret-management system.
-
-## Paid Security Options Not In This Repo
-
-The repository does not implement these paid controls. They are listed here only to show the next security upgrades available with additional AWS budget.
-
-### 1. Customer-Managed KMS Keys
-
-- Create one or more customer-managed KMS keys with automatic rotation enabled.
-- Use KMS encryption for the CV S3 bucket.
-- Enable S3 Bucket Keys to reduce SSE-KMS request costs.
-- Use customer-managed KMS encryption for the DynamoDB table.
-- Use a dedicated KMS key for application-level envelope encryption.
-- Scope key policies tightly to the Lambda role and required AWS services.
-- Use KMS encryption context, for example:
-
-```json
-{
-  "purpose": "truecraft-submission-pii",
-  "submissionId": "submission-id"
-}
-```
-
-Benefits:
-
-- Customer-owned key lifecycle and rotation.
-- CloudTrail visibility into key usage.
-- Fine-grained IAM/key policy controls.
-- Stronger separation of duties between data access and key access.
-
-Cost note:
-
-- Customer-managed AWS KMS keys have a monthly key charge and can also incur request charges. See [AWS KMS pricing](https://aws.amazon.com/kms/pricing/).
-
-### 2. Envelope Encryption For PII
-
-- Use KMS `GenerateDataKey` per submission or per logical record group.
-- Encrypt sensitive fields locally with AES-256-GCM.
-- Store the encrypted data key beside the encrypted fields.
-- Decrypt the data key only when the admin API needs to render plaintext.
-- Use KMS encryption context to bind ciphertext to the expected submission/purpose.
-- Cache decrypted data keys only within a single Lambda invocation when necessary.
-
-Benefits:
-
-- KMS never handles the full PII payload.
-- Each record can have its own data key.
-- Key usage is auditable through KMS and CloudTrail.
-- A DynamoDB read alone is insufficient to recover PII.
-
-### 3. Secrets Manager Or SSM Parameter Store
-
-- Store admin credentials and encryption material outside Lambda environment variables.
-- Prefer AWS Secrets Manager for secrets that need managed rotation.
-- Use SSM Parameter Store SecureString for simpler lower-cost secret storage when rotation is not required.
-- Cache secrets in the Lambda execution environment to avoid retrieving them on every request.
-- Grant the Lambda role permission to read only the specific secret/parameter ARN.
-
-Benefits:
-
-- Better secret lifecycle management.
-- Cleaner separation from deployment configuration.
-- Easier rotation path.
-- Reduced risk of accidental plaintext exposure in CloudFormation outputs or Lambda configuration review.
-
-Cost note:
-
-- AWS Secrets Manager has per-secret and API request charges outside applicable free credits/trials. See [AWS Secrets Manager pricing](https://aws.amazon.com/secrets-manager/pricing/).
-
-### 4. Real Admin Identity
-
-- Replace the shared `x-admin-password` model with a real identity provider.
-- Use one of:
-  - Amazon Cognito,
-  - IAM Identity Center,
-  - Auth0,
-  - another OIDC provider.
-- Add MFA.
-- Issue short-lived sessions or JWTs.
-- Add API authorization middleware or an API Gateway authorizer.
-- Track admin identity in update audit records.
-
-Benefits:
-
-- No shared password.
-- MFA support.
-- Per-user access control.
-- Per-user audit trail.
-- Better offboarding.
-
-### 5. Stronger Monitoring And Audit
-
-- CloudTrail data events for S3 object access.
-- CloudWatch alarms for unusual admin/API activity.
-- AWS WAF in front of CloudFront/API routes.
-- Security Hub and GuardDuty findings review.
-- Explicit CloudWatch log retention policies.
-- Structured security events with PII redaction.
-
-Benefits:
-
-- Better incident detection.
-- Better audit evidence.
-- Reduced sensitive log retention risk.
+This branch was prepared for public release as a single clean-history snapshot. The current tree has been scanned for obvious secrets, real AWS account/resource IDs, and real email defaults. Historical metadata from the old private branch is not reachable from `public-release`.

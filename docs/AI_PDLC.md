@@ -130,7 +130,7 @@ Do not:
 - Mock the exact behavior being verified.
 - Add production code branches that exist only for tests.
 - Hide TypeScript, lint, or runtime errors without a documented reason.
-- Claim paid AWS services such as KMS, Secrets Manager, Cognito, WAF, or CloudFront are implemented unless they are present in the repo.
+- Claim paid AWS services such as KMS, Secrets Manager, WAF, or additional monitoring are implemented unless they are present in the repo.
 
 Do:
 
@@ -146,10 +146,10 @@ This repository demonstrates:
 - TypeScript and React frontend delivery.
 - Node.js backend API behavior in Lambda.
 - AWS CDK infrastructure as code.
-- S3, DynamoDB, Lambda, API Gateway, SES, and GuardDuty Malware Protection for S3.
+- S3, DynamoDB, Lambda, API Gateway, Cognito, SES, and GuardDuty Malware Protection for S3.
 - Application-level PII encryption with AES-256-GCM.
-- Hashed admin password verification with constant-time comparison.
+- Cognito-backed admin authentication with a hashed password fallback for direct Lambda/local test paths.
 - Vitest unit testing and Playwright E2E testing.
 - AI-assisted delivery governance through `AGENTS.md`, BDD scenarios, and this lifecycle document.
 
-It does not claim to be a NestJS, Next.js, Aurora MySQL, Redis, OpenSearch, Cognito, WAF, or Secrets Manager implementation. Those are documented as relevant paid or larger-platform evolution points, not as features already built here.
+It does not claim to be a NestJS, Next.js, Aurora MySQL, Redis, OpenSearch, WAF, or Secrets Manager implementation. Those are documented as relevant paid or larger-platform evolution points, not as features already built here.
