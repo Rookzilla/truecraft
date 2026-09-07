@@ -23,6 +23,8 @@ AWS deployment instructions are in [`docs/AWS_DEPLOYMENT.md`](docs/AWS_DEPLOYMEN
 - Playwright for E2E tests
 - Gherkin BDD documentation for security-critical workflows
 
+<img width="1538" height="1038" alt="image" src="https://github.com/user-attachments/assets/384ace55-94d8-4d77-85b0-6368ccd9cf7b" />
+
 ## Repository Practices
 
 - AI-assisted engineering rules: [`AGENTS.md`](AGENTS.md)
@@ -144,6 +146,8 @@ Keep `PII_ENCRYPTION_KEY_BASE64` stable. Changing it without a rotation process 
 
 ## Security Posture
 
+<img width="1048" height="609" alt="image" src="https://github.com/user-attachments/assets/8f27a92c-997f-4a4d-a3b9-913555ce863a" />
+
 The security model is deliberately practical: strong controls where the app handles candidate data, while keeping the AWS footprint cheap enough to run as a small recruitment site. The detailed points are collapsed so the README stays readable.
 
 <details>
@@ -175,6 +179,8 @@ The security model is deliberately practical: strong controls where the app hand
 
 ### Infrastructure and deployment
 
+<img width="920" height="446" alt="image" src="https://github.com/user-attachments/assets/20663e48-3e08-4ed3-a502-48971d11aa21" />
+
 - The static site bucket is private and served through CloudFront Origin Access Control.
 - CloudFront redirects viewers to HTTPS and uses managed security response headers.
 - GitHub Actions uses OIDC role assumption rather than long-lived AWS access keys.
@@ -182,35 +188,3 @@ The security model is deliberately practical: strong controls where the app hand
 - Current public examples use placeholder account IDs, distribution IDs, and email addresses.
 
 </details>
-
-<details>
-<summary>Known trade-offs</summary>
-
-- `PII_ENCRYPTION_KEY_BASE64` is still supplied to Lambda as an environment variable. That keeps the deployment cheap, but it is not as strong as Secrets Manager or KMS-backed envelope encryption.
-- There is no automatic PII key rotation. Rotating the key needs a planned migration because existing encrypted records depend on it.
-- Randomized AES-GCM encryption prevents partial text search across encrypted fields.
-- DynamoDB server-side encryption is AWS-managed rather than customer-managed KMS.
-- The default CloudFront certificate is fine for the generated CloudFront domain, but custom domain deployments should use ACM in `us-east-1` so TLS policy can be controlled.
-- CloudFormation no-echo parameters reduce casual exposure, but they are not a complete secret-management system.
-- First Cognito admin users still have to be created operationally after deployment.
-
-</details>
-
-<details>
-<summary>Higher-budget improvements</summary>
-
-- Move encryption material into AWS Secrets Manager or SSM Parameter Store SecureString.
-- Use customer-managed KMS keys with automatic rotation for S3, DynamoDB, and application-level envelope encryption.
-- Use per-record KMS data keys so DynamoDB access alone is not enough to recover candidate PII.
-- Enable CloudTrail data events for S3 object access.
-- Add AWS WAF in front of CloudFront and API routes.
-- Add CloudWatch alarms for unusual admin/API activity.
-- Add explicit CloudWatch log retention and structured security events with PII redaction.
-- Record admin identity on candidate updates and deletes for a stronger audit trail.
-- Add AWS Budgets and anomaly alerts for operational cost control.
-
-</details>
-
-## Public Release Audit
-
-This branch was prepared for public release as a single clean-history snapshot. The current tree has been scanned for obvious secrets, real AWS account/resource IDs, and real email defaults. Historical metadata from the old private branch is not reachable from `public-release`.
